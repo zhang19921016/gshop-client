@@ -9,10 +9,14 @@
 </template>
 
 <script>
+  import NavHeader from '../../components/NavHeader/NavHeader.vue'
   export default {
     name: 'Search',
     data () {
       return {}
+    },
+    components: {
+      NavHeader
     }
   }
 </script>

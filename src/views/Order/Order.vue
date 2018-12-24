@@ -10,10 +10,14 @@
 </template>
 
 <script>
+  import NavHeader from '../../components/NavHeader/NavHeader.vue'
   export default {
     name: 'Order',
     data () {
       return {}
+    },
+    components: {
+      NavHeader
     }
   }
 </script>

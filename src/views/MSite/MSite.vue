@@ -43,6 +43,7 @@
   import 'swiper/dist/css/swiper.min.css'
   import ShopList from '../../components/ShopList/ShopList.vue'
   import {mapState} from 'vuex'
+  import NavHeader from '../../components/NavHeader/NavHeader.vue'
 
   export default {
     name: 'MSite',
@@ -84,6 +85,7 @@
     },
     components: {
       ShopList,
+      NavHeader
     }
   }
 </script>

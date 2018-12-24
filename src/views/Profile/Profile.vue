@@ -100,6 +100,7 @@
   import {mapState} from 'vuex'
   import {MessageBox} from 'mint-ui';
   import MtButton from "../../../node_modules/mint-ui/packages/button/src/button.vue";
+  import NavHeader from '../../components/NavHeader/NavHeader.vue'
   export default {
     name: 'Profile',
     computed: {
