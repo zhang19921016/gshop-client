@@ -98,6 +98,8 @@
 
 <script>
   import {mapState} from 'vuex'
+  import {MessageBox} from 'mint-ui';
+  import MtButton from "../../../node_modules/mint-ui/packages/button/src/button.vue";
   export default {
     name: 'Profile',
     computed: {
@@ -106,8 +108,14 @@
     methods: {
       loginOut () {
         //退出登陆,清除user
-        this.$store.dispatch('resetUser')
+        MessageBox.confirm('确定执行此操作?').then(action => {
+          this.$store.dispatch('resetUser')
+        });
       }
+    },
+    components: {
+      NavHeader,
+      MtButton
     }
   }
 </script>
