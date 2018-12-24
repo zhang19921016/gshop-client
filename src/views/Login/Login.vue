@@ -16,7 +16,7 @@
               <button :disabled="!isPhone || computeTime > 0" class="get_verification" :class="{right_phone_number:isPhone && !computeTime}" @click.prevent="sendCode">{{computeTime>0?`已发送(${computeTime})s`:'发送验证码'}}</button>
             </section>
             <section class="login_verification">
-              <input type="tel" maxlength="8" placeholder="验证码">
+              <input type="tel" maxlength="8" placeholder="验证码" v-model="code">
             </section>
             <section class="login_hint">
               温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
@@ -26,22 +26,22 @@
           <div :class="{on:!loginTypes}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
+                <input type="tel" maxlength="11" placeholder="用户名" v-model="name">
               </section>
               <section class="login_verification">
-                <input :type="!isShowPwd?'text':'password'" maxlength="8" placeholder="密码">
+                <input :type="isShowPwd?'text':'password'" maxlength="8" placeholder="密码" v-model="pwd">
                 <div class="switch_button" :class="!isShowPwd?'off':'on'" @click="isShowPwd = !isShowPwd">
-                  <div class="switch_circle" :class="!isShowPwd?'':'right'"></div>
-                  <span class="switch_text">{{!isShowPwd?'':'abc'}}</span>
+                  <div class="switch_circle" :class="isShowPwd?'right':''"></div>
+                  <span class="switch_text">{{isShowPwd?'abc':''}}</span>
                 </div>
               </section>
               <section class="login_message">
-                <input type="text" maxlength="11" placeholder="验证码">
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha">
+                <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
+                <img ref="captcha" class="get_verification" src="http://localhost:5000/captcha" alt="captcha" @click="getCaptcha">
               </section>
             </section>
           </div>
-          <button class="login_submit">登录</button>
+          <button class="login_submit" @click.prevent="login">登录</button>
         </form>
         <a href="javascript:;" class="about_us">关于我们</a>
       </div>
@@ -53,6 +53,8 @@
 </template>
 
 <script>
+  import {MessageBox,Toast} from 'mint-ui';
+  import {reqSendcode,reqLoginSms,reqPwdLogin} from '../../api'
   export default {
     name: '',
     data () {
@@ -60,7 +62,11 @@
         loginTypes: true, //true短信登录 false 密码登录
         phone:'',
         computeTime: 0,
-        isShowPwd: false
+        isShowPwd: false,
+        code:'',
+        name:'',
+        pwd:'',
+        captcha:''
       }
     },
     computed: {
@@ -70,14 +76,66 @@
       }
     },
     methods: {
-      sendCode () {
+      async sendCode () {
         this.computeTime = 30
         const intervalId = setInterval(() => {
           if (this.computeTime <= 0) {
+            this.computeTime = 0
             clearInterval(intervalId)
           }
           this.computeTime--
         },1000)
+        const result = await reqSendcode(this.phone)
+        if (result.code === 0) {
+          //短信发送成功
+          Toast('短信发送成功')
+        }else{
+          //短信发送失败
+          //清除定时器
+          this.computeTime = 0
+          //提示重新发送
+          MessageBox.alert(result.msg);
+        }
+      },
+      getCaptcha () {
+        this.$refs.captcha.src='http://localhost:5000/captcha?time=' + new Date()
+      },
+      async login () {
+        let result
+        const {name,pwd,captcha,phone,code} = this
+        //判断登陆类型
+        if (this.loginTypes) {
+          //前台验证
+          if (!this.isPhone ) {
+            return MessageBox.alert('请输入正确的手机号')
+          }else if (!/^\d{6}$/.test(code)) {
+            return MessageBox.alert('验证码错误')
+          }
+          //短信登陆
+          result = await reqLoginSms(phone,code)
+          console.log(result);
+        }else{
+          if (!name.trim()) {
+            return MessageBox.alert('用户名错误')
+          }else if (!pwd.trim()) {
+            return MessageBox.alert('请输入密码')
+          }else if (captcha.length!==4) {
+            return MessageBox.alert('验证码错误')
+          }
+          //密码登录
+          result = await reqPwdLogin({name,pwd,captcha})
+        }
+        //判断登陆状态
+        if (result.code === 0) {
+          //保存user
+          this.$store.dispatch('saveUser',result.data)
+
+          //登陆成功,跳转到个人中心
+          this.$router.replace('/profile')
+        }else{
+          //登陆失败
+          MessageBox.alert(result.msg)
+        }
       }
     }
   }

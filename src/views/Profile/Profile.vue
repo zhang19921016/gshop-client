@@ -1,18 +1,19 @@
 <template>
   <section class="profile">
     <NavHeader title="我的"/>
-    <section class="profile-number" @click="$router.push('/login')">
+    <section class="profile-number" @click="$router.push(user._id?'/user':'/login')">
       <a href="javascript:" class="profile-link">
         <div class="profile_image">
           <i class="iconfont icon-person"></i>
         </div>
         <div class="user-info">
-          <p class="user-info-top">登录/注册</p>
+          <p class="user-info-top" v-if="user.name">{{user.name?user.name:'登陆/注册'}}</p>
+          <p class="user-info-top" v-else>登陆/注册</p>
           <p>
-                <span class="user-icon">
-                  <i class="iconfont icon-shouji icon-mobile"></i>
-                </span>
-            <span class="icon-mobile-number">暂无绑定手机号</span>
+            <span class="user-icon">
+              <i class="iconfont icon-shouji icon-mobile"></i>
+            </span>
+            <span class="icon-mobile-number">{{user.phone?user.phone:'暂无绑定手机号'}}</span>
           </p>
         </div>
         <span class="arrow">
@@ -88,14 +89,25 @@
         </div>
       </a>
     </section>
+    <section class="profile_my_order border-1px">
+      <!--退出-->
+      <mt-button type="danger" style="width: 100%;" v-if="user._id" @click="loginOut">退出</mt-button>
+    </section>
   </section>
 </template>
 
 <script>
+  import {mapState} from 'vuex'
   export default {
     name: 'Profile',
-    data () {
-      return {}
+    computed: {
+      ...mapState(['user'])
+    },
+    methods: {
+      loginOut () {
+        //退出登陆,清除user
+        this.$store.dispatch('resetUser')
+      }
     }
   }
 </script>

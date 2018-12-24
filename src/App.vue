@@ -10,6 +10,9 @@
   export default {
     components: {
       FooterGuide
+    },
+    mounted () {
+      this.$store.dispatch('saveUserInfo')
     }
   }
 </script>
