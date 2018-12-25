@@ -1,7 +1,7 @@
 <template>
   <section class="profile">
     <NavHeader title="我的"/>
-    <section class="profile-number" @click="$router.push(user._id?'/user':'/login')">
+    <section class="profile-number" @click="$router.push(user._id?'/userInfo':'/login')">
       <a href="javascript:" class="profile-link">
         <div class="profile_image">
           <i class="iconfont icon-person"></i>
@@ -104,7 +104,9 @@
   export default {
     name: 'Profile',
     computed: {
-      ...mapState(['user'])
+      ...mapState({
+        user: state => state.User.user
+      })
     },
     methods: {
       loginOut () {
