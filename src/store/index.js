@@ -8,6 +8,7 @@ import actions from './actions'
 import getters from './getters'
 import Msite from './modules/Msite'
 import User from './modules/User'
+import Shop from './modules/Shop'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   modules: {
     Msite,
-    User
+    User,
+    Shop
   },
   actions,
   getters
