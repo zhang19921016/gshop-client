@@ -14,7 +14,9 @@ Vue.use(Vuex)
 const state = {
   goods: [],
   ratings: [],
-  info: {}
+  info: {},
+  //购物车
+  cartFoods: []
 }
 
 const mutations = {
@@ -32,6 +34,7 @@ const mutations = {
       /*food.count = 1*/
       //后添加的属性,无法实现数据绑定
       Vue.set(food,'count',1)
+      state.cartFoods.push(food)
     }else{
       food.count++
     }
@@ -39,6 +42,9 @@ const mutations = {
   [REDUCE_FOODCOUNT] (state,{food}) {
     if (food.count > 0) {
       food.count--
+    }
+    if (food.count === 0) {
+      state.cartFoods.splice(state.cartFoods.indexOf(food),1)
     }
   }
 }
@@ -83,7 +89,16 @@ const actions = {
 }
 
 const getters = {
-
+  totalCount (state) {
+    return state.cartFoods.reduce((pre,food) => {
+      return pre + food.count
+    },0)
+  },
+  totalPrice (state) {
+    return state.cartFoods.reduce((pre,food) => {
+      return pre + food.count*food.price
+    },0)
+  }
 }
 
 export default {
