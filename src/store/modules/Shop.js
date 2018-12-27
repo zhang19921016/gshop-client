@@ -5,7 +5,8 @@ import {
   RECEIVE_RATINGS,
   RECEIVE_INFO,
   ADD_FOODCOUNT,
-  REDUCE_FOODCOUNT
+  REDUCE_FOODCOUNT,
+  RESETCART
 } from '../mutation-types'
 import {reqGoods,reqRatings,reqInfo} from '../../api'
 
@@ -46,6 +47,13 @@ const mutations = {
     if (food.count === 0) {
       state.cartFoods.splice(state.cartFoods.indexOf(food),1)
     }
+  },
+  [RESETCART] (state) {
+    state.cartFoods.forEach(food => {
+      food.count = 0
+    })
+    state.cartFoods = []
+
   }
 }
 
@@ -60,13 +68,14 @@ const actions = {
       typeof cb==='function' && cb()
     }
   },
-  async getRatings ({commit}) {
+  async getRatings ({commit},cb) {
     //发送请求,得到数据
     const result = await reqRatings();
     if (result.code === 0) {
       const ratings = result.data
       //将数据提交到mutation中
       commit(RECEIVE_RATINGS,{ratings})
+      typeof cb==='function' && cb()
     }
   },
   async getInfo ({commit}) {
@@ -85,6 +94,9 @@ const actions = {
     }else{
       commit(REDUCE_FOODCOUNT,{food})
     }
+  },
+  removeCart ({commit}) {
+    commit(RESETCART)
   }
 }
 
@@ -98,6 +110,17 @@ const getters = {
     return state.cartFoods.reduce((pre,food) => {
       return pre + food.count*food.price
     },0)
+  },
+  totalRatingsCount (state) {
+    return state.ratings.length
+  },
+  totalRecommendCount (state) {
+    return state.ratings.reduce((pre,rating) => {
+      return pre + (rating.rateType === 0?1:0)
+    },0)
+  },
+  totalNegativeCount (state,getters) {
+    return getters.totalRatingsCount - getters.totalRecommendCount
   }
 }
 
